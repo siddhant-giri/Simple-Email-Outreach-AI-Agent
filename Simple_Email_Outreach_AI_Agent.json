@@ -1,0 +1,221 @@
+{
+  "name": "Simple Email Outreach AI Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Sample Form",
+        "formDescription": "This is a sample form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "What is your name?",
+              "placeholder": "Enter name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "What is your email?",
+              "placeholder": "Enter email",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8dd2c295-b393-435c-b9a4-d85bb780f63f",
+      "name": "On form submission",
+      "webhookId": "7aceb7c7-339f-40d7-b514-7831c481ca07"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1vQT5BNoOiuN--C96CeF1jfW7HfPRCIk6h4fTwBAt9b8",
+          "mode": "list",
+          "cachedResultName": "Email Outreach",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vQT5BNoOiuN--C96CeF1jfW7HfPRCIk6h4fTwBAt9b8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vQT5BNoOiuN--C96CeF1jfW7HfPRCIk6h4fTwBAt9b8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "What is your name?": "={{ $json['What is your name?'] }}",
+            "What is your email?": "={{ $json['What is your email?'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "What is your name?",
+              "displayName": "What is your name?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "What is your email?",
+              "displayName": "What is your email?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "submittedAt",
+              "displayName": "submittedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "formMode",
+              "displayName": "formMode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        220,
+        0
+      ],
+      "id": "de809c14-ef21-4424-b184-4055a6b4989b",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6NWw1hIH1tfsa0LY",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Create a personalised welcome message for  {{ $('On form submission').item.json['What is your name?'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        440,
+        0
+      ],
+      "id": "7db70a7b-7cac-4aa0-b4c0-b210f3c4ee35",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "QtAWvWJ2eXBVhyM8",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('On form submission').item.json['What is your email?'] }}",
+        "subject": "Welcome onboard!",
+        "message": "={{ $json.message.content }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        800,
+        0
+      ],
+      "id": "28dec520-9a61-4eca-8732-2fd9e6285565",
+      "name": "Gmail",
+      "webhookId": "e25577be-1c3b-44e0-9d0b-638816b98049",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "W6vCgv9iKuAFhEb3",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "971f0fa2-8dda-4f0f-8b02-3e1c3373a44e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca0ed3b0596452c4d76d9475bcb5c9399dbd9f3427d50b0add5569ce80d036ae"
+  },
+  "id": "GLtcV3TNr2rtluVG",
+  "tags": []
+}
